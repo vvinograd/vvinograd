@@ -5,12 +5,15 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.os.Build
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.text.InputType
 import android.view.Gravity
 import android.view.View
+import android.view.WindowInsets
+import android.view.WindowInsetsController
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
@@ -126,7 +129,25 @@ class MainActivity : Activity() {
             setBackgroundColor(Color.parseColor("#FAF7FF"))
             addView(root)
         }
+        applySystemBarInsets(scroll)
         return scroll
+    }
+
+    /** На Android 15 приложение рисуется под системными панелями — отодвигаем содержимое. */
+    private fun applySystemBarInsets(v: View) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return
+        // светлый фон — значит, тёмные значки в строке состояния
+        window.insetsController?.setSystemBarsAppearance(
+            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
+            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
+        )
+        window.statusBarColor = Color.parseColor("#FAF7FF")
+        window.navigationBarColor = Color.parseColor("#FAF7FF")
+        v.setOnApplyWindowInsetsListener { view, insets ->
+            val bars = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.ime())
+            view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+            insets
+        }
     }
 
     private fun refreshSelection() {

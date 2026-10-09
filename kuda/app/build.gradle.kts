@@ -4,15 +4,15 @@ plugins {
 }
 
 android {
-    namespace = "com.vvinograd.skazochnik"
+    namespace = "com.vvinograd.kuda"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.vvinograd.skazochnik"
+        applicationId = "com.vvinograd.kuda"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "0.2"
+        versionCode = 1
+        versionName = "0.1"
     }
 
     signingConfigs {

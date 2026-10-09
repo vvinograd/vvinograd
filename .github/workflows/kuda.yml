@@ -1,0 +1,50 @@
+name: Сборка «Куда идти»
+
+on:
+  push:
+    paths:
+      - "kuda/**"
+      - ".github/workflows/kuda.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: kuda
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Собрать APK
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Переименовать APK
+        run: cp app/build/outputs/apk/debug/app-debug.apk kuda.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kuda-apk
+          path: kuda/kuda.apk
+
+      - name: Опубликовать релиз
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: kuda-build-${{ github.run_number }}
+          name: Куда идти (сборка ${{ github.run_number }})
+          target_commitish: ${{ github.sha }}
+          prerelease: true
+          body: |
+            Скачайте `kuda.apk` на телефон и откройте его, чтобы установить.
+            Ветка: `${{ github.ref_name }}`, коммит: `${{ github.sha }}`.
+          files: kuda/kuda.apk
